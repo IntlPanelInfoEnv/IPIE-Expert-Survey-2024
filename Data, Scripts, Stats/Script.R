@@ -6,7 +6,7 @@ library(jtools)
 library(ggpubr)
 
 #### Cleaning and basic descriptives ####
-Data <- import("Data.xlsx")
+Data <- import("Data_anony.xlsx")
 table(Data$Progress)
 Data = filter(Data, Progress == 100)
  
@@ -14,7 +14,6 @@ Data <- Data %>%
    rename(Job = Q2,
           Career = Q11,
           Gender = Q3,
-          Age = Q4,
           Country = Q6,
           Region_expertise = Q7,
           Country_expertise = Q9,
@@ -113,7 +112,7 @@ Data_HealthInfoEnv <- Data_HealthInfoEnv %>%
                          "Q15_1",
                          "Q15_3" ))%>%
   mutate(Q = recode(Q, 
-                    Q15_1 = "Diversity of Voices",
+                    Q15_1 = "Diversity of voices",
                     Q15_2 = "Diversity of media ownership ",
                     Q15_3 = "Availability of accurate information",
                     Q15_4 = "Absence of false or misleading information", 
@@ -134,13 +133,15 @@ ggplot(Data_HealthInfoEnv, aes(x=Q, y=Percentage,fill=Response)) +
         legend.key.width = unit(0.6, "cm"),
         axis.title.y = element_blank(),
         axis.title.x = element_blank(),
-        axis.text.y = element_text(size = 19, lineheight = 1.1, color = "black"),
+        axis.text.y = element_text(size = 23, lineheight = 1.1, color = "black"),
+        axis.text.x = element_text(size = 21, lineheight = 1.1, color = "black"),
         legend.title =element_blank(),
         legend.direction = "horizontal",
         plot.title = element_text(size = 23, color = "black",vjust = 3,face="bold", hjust = 0.5),
         plot.margin = margin(20, 10, 10, 10))+
   guides(fill = guide_legend(nrow = 1,reverse=TRUE))+
-  ggtitle("Importance for a good & healthy information environment")
+  #ggtitle("Importance for a good & healthy information environment")+
+  guides(fill = "none", color = "none")
 
 ggsave("plot_HealthInfoEnv.pdf", width = 15, height = 10, dpi = 3000)
 
@@ -332,14 +333,13 @@ Data_threat_actors <- Data_threat_actors %>%
                     in my country",
                     Q18_2 = "Ordinary citizens",
                     Q18_3 = "Activists",
-                    Q18_4 = "Foreing government, politicians/parties", 
+                    Q18_4 = "Foreign government, politicians/parties", 
                     Q18_5 = "Private news organizations",
                     Q18_6 = "State-backed news organizations",
                     Q18_7 = "Journalists or news organizations",
                     Q18_8 = "Owners of social media platforms"))%>%
   group_by(Q, Response) %>%
   summarise(Percentage = n()/nrow(Data)*100)
-  
   
 ggplot(Data_threat_actors, aes(x=Q,y=Percentage, fill=Response)) + 
   geom_bar(stat = "identity", width = 0.7)+
@@ -361,14 +361,16 @@ ggplot(Data_threat_actors, aes(x=Q,y=Percentage, fill=Response)) +
         legend.key.width = unit(0.9, "cm"),
         axis.title.y = element_blank(),
         axis.title.x = element_blank(),
-        axis.text.y = element_text(size = 20, lineheight = 1.2, color = "black"),
+        axis.text.y = element_text(size = 23, lineheight = 1.1, color = "black"),
+        axis.text.x = element_text(size = 21, lineheight = 1.1, color = "black"),
         legend.title =element_blank(),
         legend.direction = "horizontal",
         plot.title = element_text(size = 21, color = "black",vjust = 3,face="bold",hjust = 0.5),
         plot.margin = margin(20, 10, 10, 10))+
   guides(fill = guide_legend(nrow = 1,reverse=TRUE))+
-  ggtitle("To what extent does each of the following represent
-          a threat to the information environment?")
+  # ggtitle("To what extent does each of the following represent
+  #         a threat to the information environment?")+
+  guides(fill = "none", color = "none")
 
 ggsave("plot_Threats_Actors.pdf", width = 15, height = 10, dpi = 3000)
 
@@ -573,12 +575,146 @@ ggsave("plot_Threats_Plat.pdf", width = 15, height = 10, dpi = 3000)
 
 
 
-#### AI past and future #### 
+
+#### AI past #### 
 Data_past <-gather(Data, Q, Response, Q20_1:Q20_4, factor_key=TRUE)%>%
+  mutate(Response = ifelse(is.na(Response), "I don't know", Response))%>%
+  mutate(Response = ifelse(Response == "I don't know", "Don't know", Response))%>%
+  mutate(Response = recode(Response,"Neither improve nor worsen" = "Neither"))
+
+# Data_past$Response_numeric <- recode(Data_past$Response,
+#                                      "Greatly improve" = 7,
+#                                      "Somewhat improve" = 6,
+#                                      "Slightly improve" = 5,
+#                                      "Neither" = 4,
+#                                      "Slightly worsen" = 3,
+#                                      "Somewhat worsen" = 2,
+#                                      "Greatly worsen" = 1,)
+# means <- Data_past %>%
+#   group_by(Q) %>%
+#   summarise(mean_Response_numeric = mean(Response_numeric, na.rm = TRUE))%>%
+#   arrange(desc(mean_Response_numeric))
+# means
+
+Data_past <- Data_past %>%
+  mutate(Response = fct_relevel(Response,
+                                "Greatly improve",
+                                "Somewhat improve",
+                                "Slightly improve",
+                                "Neither",
+                                "Don't know",
+                                "Slightly worsen",
+                                "Somewhat worsen",
+                                "Greatly worsen"))%>%
+  mutate(Q = fct_relevel(Q, 
+                         "Q20_1",
+                         "Q20_2",
+                         "Q20_3",
+                         "Q20_4"))%>%
+  mutate(Q = recode(Q, 
+                    "Q20_1"= "AI-generated text",
+                    "Q20_2"="AI-generated images",
+                    "Q20_3"= "AI-generated voices",
+                    "Q20_4" = "AI-generated videos"))%>%
+  group_by(Q, Response) %>%
+  summarise(Percentage = n()/nrow(Data)*100)
+
+past = ggplot(Data_past, aes(x=Q, y=Percentage,fill=Response)) + 
+  geom_bar(stat = "identity", width = 0.7)+
+  coord_flip()+
+  scale_fill_manual(values = c("#458cff", "#82c2ff","#bef7ff","gray70","gray50","#f7cdcd", "#ea8181","#d50e00"))+
+  theme_bw()+
+  theme(legend.position = "none",
+        legend.text = element_text(size = 13,  color = "black", ),
+        legend.key.height = unit(0.9, "cm"),
+        legend.key.width = unit(0.9, "cm"),
+        axis.title.y = element_blank(),
+        axis.title.x = element_blank(),
+        axis.text.y = element_text(size = 26, lineheight = 1.1, color = "black"),
+        axis.text.x = element_text(size = 23, lineheight = 1.1, color = "black"),
+        legend.title =element_blank(),
+        legend.direction = "horizontal",
+        plot.title = element_text(size = 26, color = "black",vjust = 3,face="bold",hjust = 0.5),
+        plot.margin = margin(20, 10, 10, 10))+
+  guides(fill = guide_legend(nrow = 1,reverse=TRUE))+
+  guides(fill = "none", color = "none")
+past
+ggsave("plot_AI_past.pdf", width = 15, height = 10, dpi = 3000)
+
+#past+future
+#ggsave("plot_past_future.pdf", width = 18, height = 12, dpi = 3000) #Manually add the legend on powerpoint
+
+#### AI future #### 
+Data_future <-gather(Data, Q, Response, Q21_1:Q21_4, factor_key=TRUE)%>%
   mutate(Response = ifelse(is.na(Response), "I don't know", Response))%>%
   mutate(Response = ifelse(Response == "I don't know", "Don't know", Response))%>%
   mutate(Response = recode(Response,
                            "Neither improve nor worsen" = "Neither"))
+
+# Data_future$Response_numeric <- recode(Data_future$Response,
+#                                      "Greatly improve" = 7,
+#                                      "Somewhat improve" = 6,
+#                                      "Slightly improve" = 5,
+#                                      "Neither" = 4,
+#                                      "Slightly worsen" = 3,
+#                                      "Somewhat worsen" = 2,
+#                                      "Greatly worsen" = 1,)
+# means <- Data_future %>%
+#   group_by(Q) %>%
+#   summarise(mean_Response_numeric = mean(Response_numeric, na.rm = TRUE))%>%
+#   arrange(desc(mean_Response_numeric))
+# means
+
+Data_future <- Data_future %>%
+  mutate(Response = fct_relevel(Response,
+                                "Greatly improve",
+                                "Somewhat improve",
+                                "Slightly improve",
+                                "Neither",
+                                "Don't know",
+                                "Slightly worsen",
+                                "Somewhat worsen",
+                                "Greatly worsen"))%>%
+  mutate(Q = fct_relevel(Q, 
+                         "Q21_1",
+                         "Q21_2",
+                         "Q21_3",
+                         "Q21_4"))%>%
+  mutate(Q = recode(Q, 
+                    "Q21_1"= "AI-generated text",
+                    "Q21_2"="AI-generated images",
+                    "Q21_3"= "AI-generated voices",
+                    "Q21_4" = "AI-generated videos"))%>%
+  group_by(Q, Response) %>%
+  summarise(Percentage = n()/nrow(Data)*100)
+
+future = ggplot(Data_future, aes(x=Q, y=Percentage,fill=Response)) + 
+  geom_bar(stat = "identity", width = 0.7)+
+  coord_flip()+
+  scale_fill_manual(values = c("#458cff", "#82c2ff","#bef7ff","gray70","gray50","#f7cdcd", "#ea8181","#d50e00"))+
+  theme_bw()+
+  theme(legend.position = "none",
+        legend.text = element_text(size = 11,  color = "black", ),
+        legend.key.height = unit(0.9, "cm"),
+        legend.key.width = unit(0.9, "cm"),
+        axis.title.y = element_blank(),
+        axis.title.x = element_blank(),
+        axis.text.y = element_text(size = 26, lineheight = 1.1, color = "black"),
+        axis.text.x = element_text(size = 23, lineheight = 1.1, color = "black"),
+        legend.title =element_blank(),
+        legend.direction = "horizontal",
+        plot.title = element_text(size = 26, color = "black",vjust = 3,face="bold",hjust = 0.5),
+        plot.margin = margin(20, 10, 10, 10))+
+  guides(fill = guide_legend(nrow = 1,reverse=TRUE))+
+  guides(fill = "none", color = "none")
+
+ggsave("plot_AI_future.pdf", width = 15, height = 10, dpi = 3000)
+
+#### AI past and future #### 
+Data_past <-gather(Data, Q, Response, Q20_1:Q20_4, factor_key=TRUE)%>%
+  mutate(Response = ifelse(is.na(Response), "I don't know", Response))%>%
+  mutate(Response = ifelse(Response == "I don't know", "Don't know", Response))%>%
+  mutate(Response = recode(Response,"Neither improve nor worsen" = "Neither"))
 
 # Data_past$Response_numeric <- recode(Data_past$Response,
 #                                      "Greatly improve" = 7,

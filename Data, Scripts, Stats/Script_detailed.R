@@ -6,7 +6,7 @@ library(jtools)
 library(ggpubr)
 
 #### Cleaning and basic descriptives ####
-Data <- import("Data.xlsx")
+Data <- import("Data_anony.xlsx")
 table(Data$Progress)
 Data = filter(Data, Progress == 100)
  
@@ -14,7 +14,6 @@ Data <- Data %>%
    rename(Job = Q2,
           Career = Q11,
           Gender = Q3,
-          Age = Q4,
           Country = Q6,
           Region_expertise = Q7,
           Country_expertise = Q9,

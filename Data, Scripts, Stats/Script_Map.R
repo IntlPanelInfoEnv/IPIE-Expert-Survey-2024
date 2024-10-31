@@ -6,7 +6,7 @@ library(jtools)
 library(ggpubr)
 
 #### Cleaning and basic descriptives ####
-Data <- import("Data.xlsx")
+Data <- import("Data_anony.xlsx")
 table(Data$Progress)
 Data = filter(Data, Progress == 100)
 
@@ -14,7 +14,6 @@ Data <- Data %>%
   rename(Job = Q2,
          Career = Q11,
          Gender = Q3,
-         Age = Q4,
          Country = Q6,
          Region_expertise = Q7,
          Country_expertise = Q9,
@@ -117,8 +116,9 @@ ggplot(data = merged_data) +
   theme_map() +
   coord_sf(crs = "+proj=eqearth")+
   scale_color_manual(values = c("black", "black", "black", "black", "black", "black", "black")) +
-  scale_fill_manual(values = c("white", "lightgoldenrod1", "gold", "goldenrod2", "darkorange2", "firebrick", "black")) 
-
+  scale_fill_manual(values = c("white", "lightgoldenrod1", "gold", "goldenrod2", "darkorange2", "firebrick", "black"))+
+  guides(fill = "none", color = "none")
+ggsave("plot_map.pdf", width = 15, height = 10, dpi = 3000)
 
 
 
