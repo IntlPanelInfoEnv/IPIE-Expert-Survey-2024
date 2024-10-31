@@ -8,7 +8,7 @@ library(ggpubr)
 # This script is mostly to transform the variables in numerical variables to do stats
 
 #### Cleaning and basic descriptives ####
-Data <- import("Data.xlsx")
+Data <- import("Data_anony.xlsx")
 table(Data$Progress)
 Data = filter(Data, Progress == 100)
  
@@ -16,7 +16,6 @@ Data <- Data %>%
    rename(Job = Q2,
           Career = Q11,
           Gender = Q3,
-          Age = Q4,
           Country = Q6,
           Region_expertise = Q7,
           Country_expertise = Q9,
@@ -47,7 +46,8 @@ Data <- Data %>%
 
 mean(Data$"Availability of accurate information", na.rm =T)
 mean(Data$"Diversity of Voices", na.rm =T)
-(5.481663+5.141119)/2
+mean(Data$"Diversity of media ownership", na.rm =T)
+(5.481663+5.141119+4.921376)/3
 
 mean(Data$"Absence of false or misleading information", na.rm =T)
 mean(Data$"Absence of hateful content", na.rm =T)
@@ -87,6 +87,15 @@ Data <- Data %>%
          "Adopting digital/media literacy campaigns and educational programs" = Q17_3,
          "Supporting free and independent media" = Q17_4,
          "Treat digital platforms as publishers rather than distributors" = Q17_5)
+
+mean(Data$"Supporting free and independent media", na.rm = TRUE)
+
+mean(Data$"Adopting digital/media literacy campaigns and educational programs", na.rm = TRUE)
+
+mean(Data$"Deplatforming problematic actors", na.rm = TRUE)
+mean(Data$"Treat digital platforms as publishers rather than distributors", na.rm = TRUE)
+mean(Data$"Expanding content moderation on social media", na.rm = TRUE)
+(5.18732+5.198142+5.497159)/3
 
 table(Data$Q18_1)
 Data <- Data %>%
@@ -247,6 +256,25 @@ mean(Data$"Perpetuate or amplify biases and stereotypes", na.rm =T)
 mean(Data$"Amplify harassment and abuse", na.rm =T)
 (3.710462+3.694377+3.741379+3.885366+3.713235)/5
 
+
+table(Data$"Increase misinfo quantity")
+(118+ 127)/412
+0.5946602
+table(Data$"Increase misinfo persuasiveness")
+(141 +112 )/412
+0.6140777
+table(Data$"Facilitate misinfo personalization")
+(137 +124 )/412
+0.6334951
+table(Data$"Perpetuate or amplify biases and stereotypes")
+(134 +149 )/412
+0.6868932
+table(Data$"Amplify harassment and abuse")
+(134 +123 )/412
+0.6237864
+
+(0.6237864+0.6868932+0.6334951+0.6140777+0.5946602)/5
+
 Data <- Data %>%
   mutate(across(Q23_1:Q23_5, ~ recode(.,
                                       "Extremely hopeful" = 5,
@@ -270,6 +298,24 @@ mean(Data$"Increase_persuasiveness_of_reliable_information", na.rm =T)
 mean(Data$"Facilitate_personalization_of_reliable_information", na.rm =T)
 (3.299754+3.189055+3.1825+2.896806+3.071605)/5
 
+
+table(Data$"Improve_automatic_content_detection")
+(134+ 115+63)/412
+0.7572816
+table(Data$"Facilitate_the_work_of_journalists")
+(117+ 110 + 61 )/412
+0.6990291
+table(Data$"Facilitate_cross_cultural_and_cross_modal_communication")
+(96 +120+  61  )/412
+0.6723301
+table(Data$"Increase_persuasiveness_of_reliable_information")
+(98 + 89+  52  )/412
+0.5800971
+table(Data$"Facilitate_personalization_of_reliable_information")
+(93 +111 + 55 )/412
+0.6286408
+
+(0.7572816+0.6990291+0.6723301+0.5800971+0.6286408)/5
 Data <- Data %>%
   mutate(across(Q25, ~ recode(.,
                               "Very confident it will worsen" = 5,
@@ -297,6 +343,16 @@ Data <- Data %>%
     "Mitigate_the_risks_posed_by_gen_AI" = Q27_3,
     "Move_away_from_social_media_to_study_messaging_apps" = Q27_4,
     "Do_more_cross_platforms_work" = Q27_5)
+
+
+mean(Data$"Collect_more_data_outside_of_the_US_and_Western_democracies", na.rm=T)
+mean(Data$"Do_more_interdisciplinary_work", na.rm=T)
+mean(Data$"Do_more_cross_platforms_work", na.rm=T)
+(4.922141+4.82963)/2
+
+mean(Data$"Mitigate_the_risks_posed_by_gen_AI", na.rm=T)
+mean(Data$"Move_away_from_social_media_to_study_messaging_apps", na.rm=T)
+
 
 write.csv(Data, "Data_stats_numerical.csv")
 

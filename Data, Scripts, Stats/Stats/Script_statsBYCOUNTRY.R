@@ -6,7 +6,7 @@ library(jtools)
 library(ggpubr)
 
 #### Cleaning and basic descriptives ####
-Data <- import("Data.xlsx")
+Data <- import("Data_anony.xlsx")
 table(Data$Progress)
 Data = filter(Data, Progress == 100)
  
@@ -14,7 +14,6 @@ Data <- Data %>%
    rename(Job = Q2,
           Career = Q11,
           Gender = Q3,
-          Age = Q4,
           Country = Q6,
           Region_expertise = Q7,
           Country_expertise = Q9,
@@ -41,6 +40,8 @@ Data$Country_expertise[Data$Country_expertise == "United States"] <- "USA"
 Data$Country_expertise[Data$Country_expertise == "Russian Federation"] <- "Russia"
 Data$Developed <- ifelse(Data$Country_expertise %in% developed_countries, 1, 0)
 
+Data_DVP = filter(Data, Developed=="1")
+Data_no_dvp = filter(Data, Developed=="0")
 
 ##### Healthy Info Env ####
 Data <- Data %>%
@@ -228,9 +229,6 @@ Data <- Data %>%
     "FUTURE_AI-generated images" = Q21_2,
     "FUTURE_AI-generated voices" = Q21_3,
     "FUTURE_AI-generated videos" = Q21_4)
-
-Data_DVP = filter(Data, Developed=="1")
-Data_no_dvp = filter(Data, Developed=="0")
 
 mean(Data_DVP$"FUTURE_AI-generated videos", na.rm=T)
 mean(Data_DVP$"FUTURE_AI-generated text", na.rm=T)
